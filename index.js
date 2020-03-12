@@ -1,11 +1,11 @@
-const e = require('express')
-const m = require('multer')
-const s = require('child_process').spawn
+const e = require('express');
+const m = require('multer');
+const s = require('child_process').spawn;
 const download = require('axios-savefile');
-const {uuidv4} = require('uuid')
+const uuid = require('uuid');
 
-const a = e()
-const p = 8080
+const a = e();
+const p = 8080;
 const upload = m({
   dest: '/tmp/',
 })
@@ -34,16 +34,22 @@ a.post('/cnh.json', upload.single('file'), (r, a, e) => {
     .catch(d => a.status(400).json({Error: `Something went wrong - ${d}`}))
 })
 
-a.get('/', (r, a) => {
-  (async () => {
-    const url = r.query.url
-    const file = `/tmp/${uuidv4()}_${getFilename(url)}`
-    await download(url, file)
-    return runPy(file)
-  }).then(d => a.json(`${d}`))
-    .catch(d => a.status(400).json({Error: `Something went wrong - ${d}`}))
-})
-a.listen(p, _ => console.log(`Running on ${p}`))
+a.get('/cnh', async (req, res) => {
+  try {
+    const url = req.query.url;
+    if (!url) {
+      throw new Error('URL not found')
+    }
+    const file = `/tmp/${uuid.v4()}_${getFilename(url)}`;
+    await download(url, file);
+    const data = await runPy(file);
+    await res.json(`${data}`);
+  } catch (e) {
+    res.status(400).json({Error: `Something went wrong - ${e}`})
+  }
+
+});
+a.listen(p, _ => console.log(`Running on ${p}`));
 
 function getFilename(filename) {
   return filename.split('/').pop();
