@@ -37,7 +37,8 @@ a.post('/cnh.json', upload.single('file'), (r, a, e) => {
 a.get('/', (r, a) => {
   (async () => {
     const url = r.query.url
-    const file = download(url, `/tmp/${uuidv4()}_${getFilename(url)}`)
+    const file = `/tmp/${uuidv4()}_${getFilename(url)}`
+    await download(url, file)
     return runPy(file)
   }).then(d => a.json(`${d}`))
     .catch(d => a.status(400).json({Error: `Something went wrong - ${d}`}))
