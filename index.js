@@ -3,6 +3,7 @@ const m = require('multer');
 const s = require('child_process').spawn;
 const download = require('axios-savefile');
 const uuid = require('uuid');
+const cors = require('cors');
 
 const a = e();
 const p = 8080;
@@ -10,6 +11,7 @@ const upload = m({
   dest: '/tmp/',
 })
 
+a.use(cors());
 a.use(e.static('public'))
 
 const runPy = file => new Promise(function (resolve, reject) {
